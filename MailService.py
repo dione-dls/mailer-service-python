@@ -1,5 +1,6 @@
 import requests
 import config
+
 from nameko.events import event_handler, BROADCAST
 
 class MailService(object):

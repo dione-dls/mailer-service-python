@@ -5,7 +5,6 @@ from nameko.timer import timer
 
 fake = Factory.create()
 
-
 class PaymentService(object):
     name = "payments"
 

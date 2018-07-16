@@ -1,4 +1,8 @@
 from nameko.testing.services import worker_factory
+from nameko.runners import ServiceRunner
+from nameko.testing.utils import get_container
+from nameko.testing.services import entrypoint_hook, entrypoint_waiter
+from nameko.testing.services import restrict_entrypoints
 
 import sys
 sys.path.insert(0, '..')
@@ -31,3 +35,27 @@ class TestMailService(object):
 
         del payload['payee']
         assert mail_service.on_payment_received(payload) == False
+        
+        del payload['payment']
+        assert mail_service.on_payment_received(payload) == False
+        
+    def test_mail_service_integration(self):
+        config = {'AMQP_URI': 'amqp://guest:guest@localhost:5672/'}
+        runner = ServiceRunner(config)
+        runner.add_service(PaymentService)
+        runner.add_service(MailService)
+
+
+        payment_container = get_container(runner, PaymentService)
+        mail_container = get_container(runner, MailService)
+
+        # turns off timer event
+        # restrict_entrypoints(payment_container, *[])
+
+        runner.start()
+
+        with entrypoint_hook(payment_container, 'emit_event') as entrypoint:
+            with entrypoint_waiter(mail_container, 'on_payment_received'):
+                entrypoint()
+
+        assert True
