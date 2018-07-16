@@ -3,12 +3,11 @@
 Mail Service is a nameko service that sends a plaintext email using the Mailgun API whenever an event is received from Payment Service.
 
 Payment Service is a nameko service that dispatches an event every 10 seconds. Each dispatched event carries a payload which contains
-client, payee, and transaction information. These details are then used by the Mail Service to complete and format a boilerplate email
-which notifies the payee that payment has been made to him/her by a client.
+client, payee, and transaction information. These details are then used by the Mail Service to complete and format a boilerplate email. This email, once delivered serves as notification to the payee that payment has been made to him/her by a client.
 
 ## Getting Started
 
-Using your command line, clone the repository to your local machine
+Using your command line, clone the repository to your local machine:
 
 ```sh
 git@github.com:dione-dls/mailer-service-python.git
@@ -20,7 +19,6 @@ Switch to the cloned repo and install:
 ```sh
 pip install nameko
 ```
-
 * Pytest
 ```sh
 pip install pytest
@@ -40,18 +38,46 @@ And set up an account with Mailgun to get the services running. You may sign up 
 https://www.mailgun.com/ .
 
 You will then need to update the information in the config.py file (API key, email, and domain) using your own Mailgun account information.
-All of these can be found on your main Mailgun dashboard.
-
-## Aproach to Solving the Problem
+All of these can be found on your Mailgun dashboard.
 
 ## Running the Program
 
-Open three separate terminals.
+Before running the program, make sure you have switched to python 3.
+
+You may run the app in the command line by opening three separate command line terminals.
 
 Run RabbitMQ in the first:
+```sh
+rabbitmq-server
+```
 
 Run MailService in the second:
+```sh
+nameko run MailService
+```
 
 Run PaymentService in the third:
+```sh
+nameko run PaymentService
+```
+When all services are started, MailService will send out payment confirmation emails for each event dispatched by PaymentService.
+
+A sample email delivered by MailService via Mailgun is as follows:
+```sh
+Dear Christopher Nguyen,
+
+You have received a payment of 6323 USD from Andrea Nelson (mahoneymorgan@example.com).
+
+Yours,
+
+Student.com
+```
+## Running the Test
+
+The following command will run both the unit and integration test for MailService:
+```sh
+pytest
+```
 
 ## Areas for Improvement
+
