@@ -1,27 +1,39 @@
 import requests
+import config
+from nameko.events import event_handler, BROADCAST
 
 class MailService(object):
     name = 'mail'
-    subject = 'Payment Received'
-    body = """\
-    Dear {payee},
-    You have received a payment of {amount} {currency} from {client} ({email}).
-    Yours,
-    student.com
-    """
+            
+    @event_handler('payments', 'payment_received', handler_type=BROADCAST, reliable_delivery=False)
+    def on_payment_received(self, payload):
+        success = False
+        try:
+            self.send_mail(payload)
+            success = True
+        except Exception as e:
+            print(e.message)
+        finally:
+            return success
     
-    def on_payment_received(self, param):
+    def send_mail(self, payload):
+        print("payment received:", payload)
+        return requests.post(
+            config.domain,
+            auth=("api", config.api_key),
+            data = self.format_text(payload))
+            
+    def format_text(self, payload):
         return {
-            'client': {
-                'name': 'John Doe',
-                'email': 'john.doe@mailexample.com'
-            },
-            'payee': {
-                'name': 'Jane Doe',
-                'email': 'jane.doe@mailexample.com'
-            },
-            'payment': {
-                'amount': 9000,
-                'currency': 'USD'
-            }
-        }
+                "from": config.mail_from,
+                "to": config.mail_to,
+                "subject": "Payment received",
+                "text": ("""
+                    Dear {},
+                    You have received a payment of {} {} from {} ({}).
+                    Yours,
+                    Student.com
+                    """).format(
+                    (payload['payee']['name']),(payload['payment']['amount']),
+                    (payload['payment']['currency']), (payload['client']['name']),
+                    (payload['client']['email']))}

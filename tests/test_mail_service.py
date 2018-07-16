@@ -1,6 +1,5 @@
 from nameko.testing.services import worker_factory
 
-
 import sys
 sys.path.insert(0, '..')
 
@@ -28,7 +27,7 @@ class TestMailService(object):
         mail_service = worker_factory(MailService)
         payload = self.get_payload()
         
-        assert mail_service.on_payment_received(payload)
+        assert mail_service.on_payment_received(payload) == True
 
-        # del payload['payee']
-        # assert mail_service.on_payment_received(payload) == False
+        del payload['payee']
+        assert mail_service.on_payment_received(payload) == False
