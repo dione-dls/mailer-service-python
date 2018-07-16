@@ -80,4 +80,5 @@ pytest
 ```
 
 ## Areas for Improvement
+Given more time to be familiar with python, pytest, and nameko, I would write more robust unit and integration tests to ensure all the parts of the program are working as expected. Also, given more time, it would have been nice to include, among others, code which will guard againsts incorrect/missing information being dispatched by PaymentService as well as error messages to check whether MailService has been successful in delivering the email (e.g. a Response 200 if mail was delivered).
 
